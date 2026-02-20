@@ -11,6 +11,8 @@ obj/
 .idea/
 *.sln.iml
 *.ruleset
+*.http
+*.csproj
 
 ## --- Visual Studio ---
 .vs/
