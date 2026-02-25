@@ -1,5 +1,6 @@
 using BackendApi.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,6 +90,32 @@ app.UseAuthentication();
 
 // 再授權
 app.UseAuthorization();
+
+app.MapPost("/api/register", async (RegisterRequest request,
+    UserManager<IdentityUser> userManager,
+    SignInManager<IdentityUser> signInManager) =>
+{
+    var user = new IdentityUser
+    {
+        UserName = request.Email,
+        Email = request.Email,
+        PhoneNumber = string.IsNullOrEmpty(request.Phone) ? null : request.Phone
+    };
+
+    var result = await userManager.CreateAsync(user, request.Password);
+    if (!result.Succeeded)
+    {
+        return Results.BadRequest(new { errors = result.Errors });
+    }
+
+    // 將「姓名」儲存為標準 Claim（後續可透過 User.Claims 或自訂 /manage/info 取得）
+    await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, request.Name));
+
+    // 自動簽入使用者（建立驗證 Cookie）
+    await signInManager.SignInAsync(user, isPersistent: false);
+
+    return Results.Ok();
+});
 
 // 映射 Identity API Endpoints，這會自動為 IdentityUser 類別生成對應的 API 路由
 app.MapIdentityApi<IdentityUser>();
