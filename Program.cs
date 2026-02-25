@@ -82,7 +82,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors(myAllowSpecificOrigins);
 
 // 啟用 HTTPS 重定向，確保 API 只能透過 HTTPS 存取（生產環境建議啟用）
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 // 先認證
 app.UseAuthentication();
