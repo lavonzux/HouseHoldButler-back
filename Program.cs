@@ -2,16 +2,32 @@ using BackendApi.Models;
 using BackendendApi.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // 設定 EF Core 使用 In-Memory Database，並指定資料庫名稱為 "ApplicationDb"
-builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseInMemoryDatabase("ApplicationDb"));
+
+// 依照 launchSettings.json 中環境變數 "CUSTOMCONNSTR_XXXXX" 存在與否來決定使用的 DB
+if (builder.Configuration.GetConnectionString("PostgreSQL") != null)
+{
+    var formattedConnectionString = string.Format(
+        builder.Configuration.GetConnectionString("PostgreSQL") ?? "",
+        builder.Configuration["POSTGRESQL:SERVER_URL"],
+        builder.Configuration["POSTGRESQL:USER_ID"],
+        builder.Configuration["POSTGRESQL:PASSWORD"],
+        builder.Configuration["POSTGRESQL:DATABASE"]
+    );
+    builder.Services.AddDbContext<ApplicationDbContext>(
+        options => options.UseNpgsql(formattedConnectionString)
+    );
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(
+        options => options.UseInMemoryDatabase("ApplicationDb"));
+}
 
 // 啟動 Identity API Endpoints（內部已包含 cookie + bearer 支援）
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
@@ -83,8 +99,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(myAllowSpecificOrigins, policyBuilder =>
     {
-        policyBuilder.WithOrigins("http://localhost:3000",
-            "https://localhost:3000") // ← 你的 React 開發伺服器位址
+        policyBuilder.WithOrigins("http://localhost:3000", "https://localhost:3000") // ← 你的 React 開發伺服器位址
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials(); // 允許攜帶 Cookie（重要！）
