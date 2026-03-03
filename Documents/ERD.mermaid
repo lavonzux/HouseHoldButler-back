@@ -1,0 +1,82 @@
+﻿erDiagram
+    category {
+        UUID id PK
+        UUID parent_id FK "nullable, 參照自表"
+        VARCHAR name
+        VARCHAR icon "nullable"
+        TIMESTAMPTZ created_at
+    }
+
+    tag {
+        UUID id PK
+        VARCHAR name
+        TIMESTAMPTZ created_at
+    }
+
+    product {
+        UUID id PK
+        UUID category_id FK "nullable"
+        VARCHAR name
+        VARCHAR barcode "nullable"
+        DECIMAL avg_consumption_rate "% per day, 0 = non-consumable"
+        DECIMAL low_stock_threshold "% remaining to trigger alert"
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
+    product_tag {
+        UUID product_id FK
+        UUID tag_id FK
+    }
+
+    inventory {
+        UUID id PK
+        UUID product_id FK
+        VARCHAR location "nullable, e.g. 冰箱 / 儲藏室"
+        DECIMAL current_quantity "estimated 0.0~1.0"
+        TIMESTAMPTZ estimated_depletion_date "nullable"
+        DATE nearest_expiry_date "nullable"
+        VARCHAR status "ACTIVE / DEPLETED / EXPIRED"
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
+    inventory_event {
+        UUID id PK
+        UUID inventory_id FK
+        VARCHAR event_type "ADD / DEPLETE / ADJUST / EXPIRE"
+        DECIMAL quantity_delta
+        VARCHAR note "nullable"
+        VARCHAR source "MANUAL / SYSTEM"
+        TIMESTAMPTZ created_at
+    }
+
+    reminder {
+        UUID id PK
+        UUID inventory_id FK
+        VARCHAR reminder_type "LOW_STOCK / EXPIRING / DEPLETION_ESTIMATED"
+        VARCHAR status "PENDING / SENT / DISMISSED / SNOOZED"
+        TIMESTAMPTZ scheduled_at
+        TIMESTAMPTZ sent_at "nullable"
+        TIMESTAMPTZ snoozed_until "nullable"
+        JSONB metadata "snapshot at trigger time"
+        TIMESTAMPTZ created_at
+    }
+
+    reminder_feedback {
+        UUID id PK
+        UUID reminder_id FK
+        VARCHAR feedback_type "TOO_EARLY / TOO_LATE / ACCURATE"
+        DECIMAL actual_quantity "nullable, user-reported actual"
+        VARCHAR note "nullable"
+        TIMESTAMPTZ created_at
+    }
+
+    category ||--o{ category : "擁有子類別"
+    category ||--o{ product : "分類"
+    tag ||--o{ product_tag : ""
+    product ||--o{ product_tag : ""
+    product ||--o{ inventory : "對應到實體"
+    inventory ||--o{ inventory_event : "紀錄"
+    inventory ||--o{ reminder : "產生"
+    reminder ||--o{ reminder_feedback : "收到"
