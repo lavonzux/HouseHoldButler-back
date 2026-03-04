@@ -28,6 +28,7 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
+    // 註冊新使用者，並自動簽入
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
@@ -53,6 +54,15 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
+    // 使用者登出
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await _signInManager.SignOutAsync();
+        return Ok();
+    }
+
+    // 使用者忘記密碼，寄送重設密碼郵件
     [HttpPost("forgotPassword")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
@@ -100,6 +110,7 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
+    // 使用者提交重設密碼要求，驗證重設馬並更新密碼
     [HttpPost("resetPassword")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
