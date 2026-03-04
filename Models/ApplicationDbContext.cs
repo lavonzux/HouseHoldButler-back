@@ -12,6 +12,13 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     { }
 
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<ProductTag> ProductTags { get; set; }
+    public DbSet<Inventory> Inventories { get; set; }
+    public DbSet<InventoryEvent> InventoryEvents { get; set; }
+    public DbSet<Reminder> Reminders { get; set; }
+    public DbSet<ReminderFeedback> ReminderFeedbacks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
