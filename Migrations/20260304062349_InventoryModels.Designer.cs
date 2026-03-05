@@ -4,6 +4,7 @@ using System.Text.Json;
 using BackendApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BackendApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260304062349_InventoryModels")]
+    partial class InventoryModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,7 +87,7 @@ namespace BackendApi.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Inventories");
+                    b.ToTable("Inventory");
                 });
 
             modelBuilder.Entity("BackendApi.Entities.InventoryEvent", b =>
@@ -117,7 +120,7 @@ namespace BackendApi.Migrations
 
                     b.HasIndex("InventoryId");
 
-                    b.ToTable("InventoryEvents");
+                    b.ToTable("InventoryEvent");
                 });
 
             modelBuilder.Entity("BackendApi.Entities.Product", b =>
@@ -152,7 +155,7 @@ namespace BackendApi.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("BackendApi.Entities.ProductTag", b =>
@@ -167,7 +170,7 @@ namespace BackendApi.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("ProductTags");
+                    b.ToTable("ProductTag");
                 });
 
             modelBuilder.Entity("BackendApi.Entities.Reminder", b =>
@@ -206,7 +209,7 @@ namespace BackendApi.Migrations
 
                     b.HasIndex("InventoryId");
 
-                    b.ToTable("Reminders");
+                    b.ToTable("Reminder");
                 });
 
             modelBuilder.Entity("BackendApi.Entities.ReminderFeedback", b =>
@@ -235,7 +238,7 @@ namespace BackendApi.Migrations
 
                     b.HasIndex("ReminderId");
 
-                    b.ToTable("ReminderFeedbacks");
+                    b.ToTable("ReminderFeedback");
                 });
 
             modelBuilder.Entity("BackendApi.Entities.Tag", b =>
@@ -253,7 +256,7 @@ namespace BackendApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tag");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
