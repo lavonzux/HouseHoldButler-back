@@ -1,5 +1,5 @@
 using BackendApi.Models;
-using BackendendApi.Services;
+using BackendApi.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +35,8 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddDefaultTokenProviders(); // 這一行確保 Email / Phone Token Provider 被註冊
 
 // 加入郵件發送服務
-builder.Services.AddTransient<IEmailSender, EmailSender>();  // 您實作的 EmailSender
+//builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();  // 您實作的 SendGridEmailSender
+builder.Services.AddTransient<IEmailSender, GmailEmailSender>();  // 您實作的 GmailEmailSender
 
 // 明確設定預設方案為 cookie（Identity.Application），避免框架 fallback 到 Bearer
 builder.Services.AddAuthentication(options =>
