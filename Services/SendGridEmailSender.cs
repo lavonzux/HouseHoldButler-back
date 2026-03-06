@@ -3,14 +3,14 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using System.Threading.Tasks;
 
-namespace BackendendApi.Services
+namespace BackendApi.Services
 {
-    public class EmailSender : IEmailSender
+    public class SendGridEmailSender : IEmailSender
     {
         private readonly IConfiguration _config;
-        private readonly ILogger<EmailSender> _logger;
+        private readonly ILogger<SendGridEmailSender> _logger;
 
-        public EmailSender(IConfiguration config, ILogger<EmailSender> logger)
+        public SendGridEmailSender(IConfiguration config, ILogger<SendGridEmailSender> logger)
         {
             _config = config;
             _logger = logger;
