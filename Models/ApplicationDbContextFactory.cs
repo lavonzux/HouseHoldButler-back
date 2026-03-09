@@ -21,10 +21,10 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
             .Build();
 
         var connectionString =
-            $"Server={config["POSTGRESQL:SERVER_URL"]};" +
-            $"User ID={config["POSTGRESQL:USER_ID"]};" +
-            $"Password={config["POSTGRESQL:PASSWORD"]};" +
-            $"Database={config["POSTGRESQL:DATABASE"]}";
+            $"Server={config["POSTGRESQL:ServerUrl"]};" +
+            $"User ID={config["POSTGRESQL:UserId"]};" +
+            $"Password={config["POSTGRESQL:Password"]};" +
+            $"Database={config["POSTGRESQL:Database"]}";
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
         optionsBuilder.UseNpgsql(connectionString);
