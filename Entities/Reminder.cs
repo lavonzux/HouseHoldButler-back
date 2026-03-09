@@ -27,7 +27,7 @@ public class Reminder
     // Snapshot of system state at the moment this reminder was created.
     // Used to explain *why* the reminder fired and to train reminder_feedback.
     // Example: { "estimated_remaining": 0.12, "estimated_depletion_date": "2025-03-10" }
-    public JsonDocument? Metadata { get; set; }
+    // public JsonDocument? Metadata { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -65,6 +66,10 @@ namespace BackendApi.Migrations
             migrationBuilder.DropPrimaryKey(
                 name: "PK_Inventory",
                 table: "Inventory");
+
+            migrationBuilder.DropColumn(
+                name: "Metadata",
+                table: "Reminder");
 
             migrationBuilder.RenameTable(
                 name: "Tag",
@@ -331,6 +336,12 @@ namespace BackendApi.Migrations
                 name: "IX_Inventories_ProductId",
                 table: "Inventory",
                 newName: "IX_Inventory_ProductId");
+
+            migrationBuilder.AddColumn<JsonDocument>(
+                name: "Metadata",
+                table: "Reminder",
+                type: "jsonb",
+                nullable: true);
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Tag",
