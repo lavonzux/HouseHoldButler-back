@@ -1,3 +1,4 @@
+using BackendApi.Services;
 using Quartz;
 
 namespace BackendApi.Jobs;
@@ -10,20 +11,23 @@ namespace BackendApi.Jobs;
 [DisallowConcurrentExecution]
 public class ReminderEvaluationJob : IJob
 {
+    private readonly ReminderEvaluationService _evaluationService;
     private readonly ILogger<ReminderEvaluationJob> _logger;
 
-    public ReminderEvaluationJob(ILogger<ReminderEvaluationJob> logger)
+    public ReminderEvaluationJob(
+        ReminderEvaluationService evaluationService,
+        ILogger<ReminderEvaluationJob> logger)
     {
+        _evaluationService = evaluationService;
         _logger = logger;
     }
 
-    public Task Execute(IJobExecutionContext context)
+    public async Task Execute(IJobExecutionContext context)
     {
         _logger.LogInformation("ReminderEvaluationJob started at {Time}", DateTimeOffset.UtcNow);
 
-        // TODO: Implement reminder evaluation logic
+        await _evaluationService.EvaluateAllAsync(context.CancellationToken);
 
         _logger.LogInformation("ReminderEvaluationJob completed at {Time}", DateTimeOffset.UtcNow);
-        return Task.CompletedTask;
     }
 }

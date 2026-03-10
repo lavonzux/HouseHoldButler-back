@@ -38,6 +38,7 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
 
 // 加入庫存重新計算服務
 builder.Services.AddScoped<InventoryRecalculationService>();
+builder.Services.AddScoped<ReminderEvaluationService>();
 
 // 加入郵件發送服務
 //builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();  // 您實作的 SendGridEmailSender
