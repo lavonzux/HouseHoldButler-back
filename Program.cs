@@ -1,8 +1,10 @@
+using BackendApi.Jobs;
 using BackendApi.Models;
 using BackendApi.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +46,31 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
     options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
     options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+});
+
+// 註冊 Quartz.NET 背景排程器
+builder.Services.AddQuartz(q =>
+{
+    // Job A: 每日凌晨 2:00 UTC 重新計算庫存數量與預估耗盡日期
+    q.AddJob<InventoryRecalculationJob>(j => j.WithIdentity("InventoryRecalculation"));
+    q.AddTrigger(t => t
+        .ForJob("InventoryRecalculation")
+        .WithIdentity("InventoryRecalculation-Trigger")
+        .WithCronSchedule("0 0 2 * * ?") // 每日 02:00 UTC
+    );
+
+    // Job B: 每日凌晨 2:30 UTC 評估庫存狀態並建立提醒（排在 Job A 之後）
+    q.AddJob<ReminderEvaluationJob>(j => j.WithIdentity("ReminderEvaluation"));
+    q.AddTrigger(t => t
+        .ForJob("ReminderEvaluation")
+        .WithIdentity("ReminderEvaluation-Trigger")
+        .WithCronSchedule("0 30 2 * * ?") // 每日 02:30 UTC
+    );
+});
+builder.Services.AddQuartzHostedService(options =>
+{
+    // 應用程式關閉時等待正在執行的 Job 完成
+    options.WaitForJobsToComplete = true;
 });
 
 // 註冊授權服務
