@@ -35,6 +35,7 @@ public class ProductsController(ApplicationDbContext db, ILogger<ProductsControl
             Name = request.Name,
             CategoryId = request.CategoryId,
             Barcode = request.Barcode,
+            Unit = request.Unit,
             AvgConsumptionRate = request.AvgConsumptionRate,
             LowStockThreshold = request.LowStockThreshold,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -58,6 +59,7 @@ public class ProductsController(ApplicationDbContext db, ILogger<ProductsControl
         product.Name = request.Name;
         product.CategoryId = request.CategoryId;
         product.Barcode = request.Barcode;
+        product.Unit = request.Unit;
         product.AvgConsumptionRate = request.AvgConsumptionRate;
         product.LowStockThreshold = request.LowStockThreshold;
         product.UpdatedAt = DateTimeOffset.UtcNow;

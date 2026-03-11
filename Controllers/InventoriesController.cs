@@ -39,8 +39,8 @@ public class InventoriesController(ApplicationDbContext db, ILogger<InventoriesC
             Id = Guid.NewGuid(),
             ProductId = request.ProductId,
             Location = request.Location,
-            CurrentQuantity = request.CurrentQuantity,
-            EstimatedDepletionDate = request.EstimatedDepletionDate,
+            InitialQuantity = request.InitialQuantity,
+            CurrentQuantity = 1.0m,
             NearestExpiryDate = request.NearestExpiryDate,
             Status = request.Status ?? InventoryStatus.Active,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -62,10 +62,9 @@ public class InventoriesController(ApplicationDbContext db, ILogger<InventoriesC
             return NotFound();
 
         inventory.Location = request.Location;
-        inventory.CurrentQuantity = request.CurrentQuantity;
-        inventory.EstimatedDepletionDate = request.EstimatedDepletionDate;
+        if (request.InitialQuantity.HasValue)
+            inventory.InitialQuantity = request.InitialQuantity.Value;
         inventory.NearestExpiryDate = request.NearestExpiryDate;
-        inventory.Status = request.Status;
         inventory.UpdatedAt = DateTimeOffset.UtcNow;
 
         await db.SaveChangesAsync();

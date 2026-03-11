@@ -2,6 +2,7 @@ using BackendApi.Constants;
 using BackendApi.Entities;
 using BackendApi.Models;
 using BackendApi.Requests.Inventory;
+using BackendApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,10 @@ namespace BackendApi.Controllers;
 // InventoryEvent is an append-only audit log — no update or delete endpoints.
 [ApiController]
 [Route("api/[controller]")]
-public class InventoryEventsController(ApplicationDbContext db, ILogger<InventoryEventsController> logger) : ControllerBase
+public class InventoryEventsController(
+    ApplicationDbContext db,
+    InventoryRecalculationService recalculationService,
+    ILogger<InventoryEventsController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] Guid? inventoryId)
@@ -48,6 +52,9 @@ public class InventoryEventsController(ApplicationDbContext db, ILogger<Inventor
 
         db.InventoryEvents.Add(ev);
         await db.SaveChangesAsync();
+
+        // Immediately recalculate the affected inventory
+        await recalculationService.RecalculateAsync(request.InventoryId);
 
         logger.LogInformation("Created inventory event {Id} ({EventType}) for inventory {InventoryId}",
             ev.Id, ev.EventType, ev.InventoryId);

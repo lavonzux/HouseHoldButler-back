@@ -6,13 +6,12 @@ namespace BackendApi.Entities;
 // Never update or delete rows in this table; append only.
 //
 // Event types (see InventoryEventType constants):
-//   ADD     — user purchased / added stock. QuantityDelta > 0.
-//   DEPLETE — user marks item as fully used up. QuantityDelta sets quantity to 0.
-//   ADJUST  — user corrects the estimated quantity. QuantityDelta = new absolute value.
-//   EXPIRE  — system marks stock as expired. QuantityDelta = 0.
+//   DEPLETE — user marks item as fully used up. QuantityDelta is ignored (implies 0).
+//   ADJUST  — user corrects the estimated quantity. QuantityDelta = new absolute value (0.0 ~ 1.0).
+//   EXPIRE  — system marks stock as expired. QuantityDelta is ignored (implies 0).
 //
-// Note: There is intentionally no CONSUME event. Consumption between ADD/DEPLETE
-// anchors is *estimated* by the background job using AvgConsumptionRate, not recorded.
+// Note: There is intentionally no CONSUME event. Consumption between anchors
+// is *estimated* by the recalculation service using AvgConsumptionRate, not recorded.
 public class InventoryEvent
 {
     public Guid Id { get; set; }
@@ -23,7 +22,6 @@ public class InventoryEvent
     public string EventType { get; set; } = string.Empty;
 
     // Semantics vary by EventType:
-    //   ADD     → quantity added (positive)
     //   DEPLETE → ignored (implies full depletion)
     //   ADJUST  → new absolute quantity (0.0 ~ 1.0)
     //   EXPIRE  → ignored (implies full expiry)

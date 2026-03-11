@@ -2,7 +2,6 @@
 
 public static class InventoryEventType
 {
-    public const string Add = "ADD";
     public const string Deplete = "DEPLETE";
     public const string Adjust = "ADJUST";
     public const string Expire = "EXPIRE";

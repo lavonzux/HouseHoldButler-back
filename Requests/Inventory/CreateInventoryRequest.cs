@@ -3,7 +3,6 @@ namespace BackendApi.Requests.Inventory;
 public record CreateInventoryRequest(
     Guid ProductId,
     string? Location,
-    decimal CurrentQuantity,
-    DateTimeOffset? EstimatedDepletionDate,
-    DateOnly? NearestExpiryDate,
-    string? Status);
+    decimal InitialQuantity = 1,
+    DateOnly? NearestExpiryDate = null,
+    string? Status = null);

@@ -3,6 +3,7 @@ using System;
 using BackendApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BackendApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260310212956_InventoryModelRefinement")]
+    partial class InventoryModelRefinement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,99 +24,6 @@ namespace BackendApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("BackendApi.Entities.BudgetAlert", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("AlertLevel")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("LastNotifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("Percentage")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateOnly>("YearMonth")
-                        .HasColumnType("date");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("YearMonth");
-
-                    b.HasIndex("CategoryId", "YearMonth")
-                        .IsUnique();
-
-                    b.ToTable("BudgetAlerts");
-                });
-
-            modelBuilder.Entity("BackendApi.Entities.BudgetCategoryLimit", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("BudgetAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateOnly>("YearMonth")
-                        .HasColumnType("date");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId", "YearMonth")
-                        .IsUnique();
-
-                    b.ToTable("BudgetCategoryLimits");
-                });
-
-            modelBuilder.Entity("BackendApi.Entities.BudgetMonthlyTotal", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("TotalBudget")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateOnly>("YearMonth")
-                        .HasColumnType("date");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("YearMonth")
-                        .IsUnique();
-
-                    b.ToTable("BudgetMonthlyTotals");
-                });
 
             modelBuilder.Entity("BackendApi.Entities.Category", b =>
                 {
@@ -139,61 +49,6 @@ namespace BackendApi.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("BackendApi.Entities.Expenditure", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<DateOnly>("ExpenditureDate")
-                        .HasColumnType("date");
-
-                    b.Property<Guid?>("InventoryEventId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("InventoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Source")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("ExpenditureDate");
-
-                    b.HasIndex("InventoryEventId");
-
-                    b.HasIndex("InventoryId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("Expenditures");
                 });
 
             modelBuilder.Entity("BackendApi.Entities.Inventory", b =>
@@ -602,27 +457,6 @@ namespace BackendApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BackendApi.Entities.BudgetAlert", b =>
-                {
-                    b.HasOne("BackendApi.Entities.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("BackendApi.Entities.BudgetCategoryLimit", b =>
-                {
-                    b.HasOne("BackendApi.Entities.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("BackendApi.Entities.Category", b =>
                 {
                     b.HasOne("BackendApi.Entities.Category", "Parent")
@@ -631,38 +465,6 @@ namespace BackendApi.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("BackendApi.Entities.Expenditure", b =>
-                {
-                    b.HasOne("BackendApi.Entities.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("BackendApi.Entities.InventoryEvent", "InventoryEvent")
-                        .WithMany()
-                        .HasForeignKey("InventoryEventId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("BackendApi.Entities.Inventory", "Inventory")
-                        .WithMany()
-                        .HasForeignKey("InventoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("BackendApi.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Inventory");
-
-                    b.Navigation("InventoryEvent");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("BackendApi.Entities.Inventory", b =>

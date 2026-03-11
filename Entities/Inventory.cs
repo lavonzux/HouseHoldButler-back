@@ -12,9 +12,14 @@ public class Inventory
     // Not enforced as a FK — kept as free text to avoid over-engineering.
     public string? Location { get; set; }
 
+    // The quantity purchased in this buy (e.g. 12 bottles, 1 bag).
+    // Defaults to 1. UI multiplies CurrentQuantity × InitialQuantity
+    // to show a human-readable remaining amount.
+    public decimal InitialQuantity { get; set; } = 1;
+
     // Estimated remaining quantity as a percentage (0.0 ~ 1.0).
     // This is a DERIVED/ESTIMATED value, not the source of truth.
-    // Source of truth is InventoryEvents. Recalculated nightly by a background job.
+    // Source of truth is InventoryEvents. Recalculated by events and nightly job.
     public decimal CurrentQuantity { get; set; }
 
     // Projected date when CurrentQuantity reaches zero, based on AvgConsumptionRate.
