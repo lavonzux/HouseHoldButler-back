@@ -72,6 +72,49 @@
         TIMESTAMPTZ created_at
     }
 
+    budget_category_limit {
+        UUID id PK
+        UUID category_id FK
+        date year_month "DateOnly, e.g. 2026-02-01"
+        decimal budget_amount "NT$"
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
+    budget_monthly_total {
+        UUID id PK
+        date year_month "DateOnly"
+        decimal total_budget "NT$"
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
+    budget_alert {
+        UUID id PK
+        UUID category_id FK "nullable (總預算警示為 null)"
+        date year_month
+        VARCHAR alert_level "Normal/Warning60/..."
+        decimal percentage "e.g. 87.45"
+        TIMESTAMPTZ last_notified_at "nullable"
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
+    expenditure {
+        UUID id PK
+        UUID category_id FK "必填"
+        decimal amount "NT$ 正數表示支出"
+        date expenditure_date "DateOnly"
+        VARCHAR description "nullable"
+        UUID inventory_event_id FK "nullable"
+        UUID product_id FK "nullable"
+        UUID inventory_id FK "nullable"
+        VARCHAR source "MANUAL / RECEIPT_SCAN / ..."
+        VARCHAR note "nullable"
+        TIMESTAMPTZ created_at
+        TIMESTAMPTZ updated_at
+    }
+
     category ||--o{ category : "擁有子類別"
     category ||--o{ product : "分類"
     tag ||--o{ product_tag : ""
@@ -80,3 +123,9 @@
     inventory ||--o{ inventory_event : "紀錄"
     inventory ||--o{ reminder : "產生"
     reminder ||--o{ reminder_feedback : "收到"
+    category ||--o{ budget_category_limit : "設定每月額度"
+    budget_alert }o--|| category : "監控（可為總預算）"
+    category ||--o{ expenditure : "支出歸屬"
+    inventory_event ||--o{ expenditure : "購買事件（可選）"
+    product ||--o{ expenditure : "針對產品（可選）"
+    inventory ||--o{ expenditure : "補充庫存位置（可選）"
