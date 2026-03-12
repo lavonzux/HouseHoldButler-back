@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,7 +82,8 @@ builder.Services.AddQuartzHostedService(options =>
 builder.Services.AddAuthorization();
 
 // 註冊控制器所需的各項核心服務
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 // 註冊 OpenAPI 生成器，來支援 Minimal APIs 自動生成對應的 OpenAPI 文件，方便開發者使用 Swagger UI 來測試 API
 builder.Services.AddOpenApi();

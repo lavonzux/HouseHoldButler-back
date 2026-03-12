@@ -14,7 +14,10 @@ public class InventoriesController(ApplicationDbContext db, ILogger<InventoriesC
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] Guid? productId)
     {
-        var query = db.Inventories.AsQueryable();
+        var query = db.Inventories
+            .Include(i => i.Product)
+            .ThenInclude(p => p.Category)
+            .AsQueryable();
 
         if (productId.HasValue)
             query = query.Where(i => i.ProductId == productId.Value);
@@ -25,7 +28,10 @@ public class InventoriesController(ApplicationDbContext db, ILogger<InventoriesC
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var inventory = await db.Inventories.FindAsync(id);
+        var inventory = await db.Inventories
+            .Include(i => i.Product)
+            .ThenInclude(p => p.Category)
+            .FirstOrDefaultAsync(i => i.Id == id);
         if (inventory is null)
             return NotFound();
         return Ok(inventory);
