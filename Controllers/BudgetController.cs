@@ -1,4 +1,5 @@
-﻿using BackendApi.Dtos;
+﻿using BackendApi.Constants;
+using BackendApi.Dtos;
 using BackendApi.DTOs;
 using BackendApi.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -73,6 +74,92 @@ namespace BackendApi.Controllers
             };
 
             return Ok(result);
+        }
+
+        // 取得未讀的預算警示通知列表（不含 Normal 等級，只回傳有意義的警示）
+        [HttpGet("getBudgetAlerts")]
+        public async Task<ActionResult<List<BudgetAlertDto>>> GetBudgetAlerts([FromQuery] DateOnly? yearMonth = null)
+        {
+            var targetMonth = yearMonth ?? DateOnly.FromDateTime(DateTime.Today);
+
+            var alerts = await _context.BudgetAlerts
+                .Where(a => a.YearMonth == targetMonth 
+                        && a.AlertLevel != BudgetAlertLevel.Normal
+                        && !a.IsRead)
+                .Include(a => a.Category)
+                .OrderByDescending(a => a.CreatedAt)
+                .Select(a => new BudgetAlertDto
+                {
+                    Id = a.Id,
+                    CategoryId = a.CategoryId,
+                    CategoryName = a.Category != null ? a.Category.Name : "總預算",
+                    CategoryIcon = a.Category != null ? a.Category.Icon : null,
+                    YearMonth = a.YearMonth,
+                    AlertLevel = a.AlertLevel,
+                    Percentage = a.Percentage,
+                    IsRead = a.IsRead,
+                    ReadAt = a.ReadAt,
+                    LastNotifiedAt = a.LastNotifiedAt,
+                    CreatedAt = a.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(alerts);
+        }
+
+        // 取得未讀預算警示數量（供通知小鈴鐺使用）
+        [HttpGet("getUnreadAlertCount")]
+        public async Task<ActionResult<int>> GetUnreadAlertCount()
+        {
+            var currentMonth = DateOnly.FromDateTime(DateTime.Today);
+
+            var count = await _context.BudgetAlerts
+                .Where(a => a.YearMonth == currentMonth
+                        && a.AlertLevel != BudgetAlertLevel.Normal
+                        && !a.IsRead)
+                .CountAsync();
+
+            return Ok(count);
+        }
+
+        // 標記單一預算警示為已讀
+        [HttpPatch("markAlertAsRead/{id}")]
+        public async Task<IActionResult> MarkAlertAsRead(Guid id)
+        {
+            var alert = await _context.BudgetAlerts.FindAsync(id);
+            if (alert == null)
+            {
+                return NotFound();
+            }
+
+            alert.IsRead = true;
+            alert.ReadAt = DateTimeOffset.UtcNow;
+            alert.UpdatedAt = DateTimeOffset.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        //標記當月所有預算警示為已讀
+        [HttpPatch("markAllAlertsAsRead")]
+        public async Task<IActionResult> MarkAllAlertsAsRead([FromQuery] DateOnly? yearMonth = null)
+        {
+            var targetMonth = yearMonth ?? DateOnly.FromDateTime(DateTime.Today);
+
+            var alerts = await _context.BudgetAlerts
+                .Where(a => a.YearMonth == targetMonth && !a.IsRead)
+                .ToListAsync();
+
+            var now = DateTimeOffset.UtcNow;
+            foreach (var alert in alerts)
+            {
+                alert.IsRead = true;
+                alert.ReadAt = now;
+                alert.UpdatedAt = now;
+            }
+
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
