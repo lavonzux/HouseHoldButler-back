@@ -15,6 +15,10 @@ namespace BackendApi.Entities
 
         public decimal Percentage { get; set; } // 觸發時的實際百分比
 
+        public bool IsRead { get; set; } = false; // 是否已讀，讓前端可以顯示未讀標記
+
+        public DateTimeOffset? ReadAt { get; set; } // 標記為已讀的時間
+
         public DateTimeOffset? LastNotifiedAt { get; set; } // 上次發送通知的時間，用來避免短時間內重複推播
 
         public DateTimeOffset CreatedAt { get; set; } // 記錄建立時間
