@@ -1,7 +1,9 @@
 ﻿using BackendApi.Constants;
 using BackendApi.Dtos;
 using BackendApi.DTOs;
+using BackendApi.Entities;
 using BackendApi.Models;
+using BackendApi.Requests.Budget;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -75,6 +77,79 @@ namespace BackendApi.Controllers
 
             return Ok(result);
         }
+
+        // 取得某月已設定的分類預算清單
+        [HttpGet("getCategoryLimits")]
+        public async Task<ActionResult<List<BudgetCategoryOverviewDto>>> GetCategoryLimits(
+            [FromQuery] DateOnly? yearMonth = null)
+        {
+            var targetMonth = yearMonth ?? DateOnly.FromDateTime(DateTime.Today);
+
+            var limits = await _context.BudgetCategoryLimits
+                .Where(b => b.YearMonth == targetMonth)
+                .Include(b => b.Category)
+                .Select(b => new BudgetCategoryOverviewDto
+                {
+                    CategoryId = b.CategoryId,
+                    CategoryName = b.Category != null ? b.Category.Name : "未知類別",
+                    Icon = b.Category != null ? b.Category.Icon : null,
+                    BudgetAmount = b.BudgetAmount,
+                    ActualSpent = 0,
+                    Percentage = 0
+                })
+                .ToListAsync();
+
+            return Ok(limits);
+        }
+
+        // 批次刪除、新增/更新分類預算
+        [HttpPost("setBudgetLimits")]
+        public async Task<IActionResult> SetBudgetLimits([FromBody] SetBudgetLimitsRequest request)
+        {
+            if (request.Items == null || request.Items.Count == 0)
+                return BadRequest("請至少提供一筆預算設定");
+
+            var targetMonth = request.YearMonth;
+            var incomingCategoryIds = request.Items.Select(i => i.CategoryId).ToHashSet();
+
+            // 取得該月所有現有記錄
+            var existingLimits = await _context.BudgetCategoryLimits
+                .Where(b => b.YearMonth == targetMonth)
+                .ToListAsync();
+
+            // 刪除這次清單中不包含的分類（使用者在 Modal 中移除的）
+            var toDelete = existingLimits
+                .Where(b => !incomingCategoryIds.Contains(b.CategoryId))
+                .ToList();
+            _context.BudgetCategoryLimits.RemoveRange(toDelete);
+
+            // Upsert 這次清單中的分類
+            var existingDict = existingLimits.ToDictionary(b => b.CategoryId);
+            foreach (var item in request.Items)
+            {
+                if (existingDict.TryGetValue(item.CategoryId, out var existing))
+                {
+                    existing.BudgetAmount = item.BudgetAmount;
+                    existing.UpdatedAt = DateTimeOffset.UtcNow;
+                }
+                else
+                {
+                    _context.BudgetCategoryLimits.Add(new BudgetCategoryLimit
+                    {
+                        Id = Guid.NewGuid(),
+                        CategoryId = item.CategoryId,
+                        YearMonth = targetMonth,
+                        BudgetAmount = item.BudgetAmount,
+                        CreatedAt = DateTimeOffset.UtcNow,
+                        UpdatedAt = DateTimeOffset.UtcNow
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
 
         // 取得未讀的預算警示通知列表（不含 Normal 等級，只回傳有意義的警示）
         [HttpGet("getBudgetAlerts")]
