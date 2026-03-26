@@ -88,6 +88,21 @@ public class InventoryService : IInventoryService
         return ServiceResult<Inventory>.Success(inventory);
     }
 
+    public async Task<ServiceResult<Inventory>> PatchNoteAsync(Guid id, PatchInventoryNoteRequest request)
+    {
+        var inventory = await _db.Inventories.FindAsync(id);
+        if (inventory is null)
+            return ServiceResult<Inventory>.NotFound();
+
+        inventory.Note = request.Note;
+        inventory.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Patched note on inventory {Id}", id);
+        return ServiceResult<Inventory>.Success(inventory);
+    }
+
     public async Task<ServiceResult<object?>> DeleteAsync(Guid id)
     {
         var inventory = await _db.Inventories

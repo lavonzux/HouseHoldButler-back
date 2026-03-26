@@ -33,6 +33,9 @@ public class Inventory
     // See InventoryStatus constants
     public string Status { get; set; } = InventoryStatus.Active;
 
+    // Optional free-text note attached to this inventory entry by the user.
+    public string? Note { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 

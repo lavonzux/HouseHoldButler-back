@@ -25,6 +25,10 @@ public class InventoriesController(IInventoryService inventoryService) : Control
     public async Task<IActionResult> Update(Guid id, UpdateInventoryRequest request)
         => this.ToActionResult(await inventoryService.UpdateAsync(id, request));
 
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> PatchNote(Guid id, PatchInventoryNoteRequest request)
+        => this.ToActionResult(await inventoryService.PatchNoteAsync(id, request));
+
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
         => this.ToActionResult(await inventoryService.DeleteAsync(id));

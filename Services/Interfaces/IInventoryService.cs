@@ -9,5 +9,6 @@ public interface IInventoryService
     Task<ServiceResult<Inventory>> GetByIdAsync(Guid id);
     Task<ServiceResult<Inventory>> CreateAsync(CreateInventoryRequest request);
     Task<ServiceResult<Inventory>> UpdateAsync(Guid id, UpdateInventoryRequest request);
+    Task<ServiceResult<Inventory>> PatchNoteAsync(Guid id, PatchInventoryNoteRequest request);
     Task<ServiceResult<object?>> DeleteAsync(Guid id);
 }

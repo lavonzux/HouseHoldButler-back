@@ -119,6 +119,17 @@ public class MockInventoryService : IInventoryService
         return Task.FromResult(ServiceResult<Inventory>.Success(inventory));
     }
 
+    public Task<ServiceResult<Inventory>> PatchNoteAsync(Guid id, PatchInventoryNoteRequest request)
+    {
+        var inventory = Store.FirstOrDefault(i => i.Id == id);
+        if (inventory is null)
+            return Task.FromResult(ServiceResult<Inventory>.NotFound());
+
+        inventory.Note = request.Note;
+        inventory.UpdatedAt = DateTimeOffset.UtcNow;
+        return Task.FromResult(ServiceResult<Inventory>.Success(inventory));
+    }
+
     public Task<ServiceResult<object?>> DeleteAsync(Guid id)
     {
         var inventory = Store.FirstOrDefault(i => i.Id == id);
