@@ -32,4 +32,11 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="BackendApi.Tests\**" />
+    <Content Remove="BackendApi.Tests\**" />
+    <EmbeddedResource Remove="BackendApi.Tests\**" />
+    <None Remove="BackendApi.Tests\**" />
+  </ItemGroup>
+
 </Project>
