@@ -11,8 +11,8 @@ namespace BackendApi.Controllers;
 public class InventoryEventsController(IInventoryEventService inventoryEventService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] Guid? inventoryId)
-        => this.ToActionResult(await inventoryEventService.GetAllAsync(inventoryId));
+    public async Task<IActionResult> GetAll([FromQuery] Guid? inventoryId, [FromQuery] Guid? productId)
+        => this.ToActionResult(await inventoryEventService.GetAllAsync(inventoryId, productId));
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)

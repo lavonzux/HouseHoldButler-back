@@ -1,3 +1,5 @@
+using BackendApi.Constants;
+using BackendApi.Dtos;
 using BackendApi.Entities;
 using BackendApi.Requests.Inventory;
 using BackendApi.Services.Interfaces;
@@ -58,6 +60,47 @@ public class MockProductService : IProductService
         return Task.FromResult(product is null
             ? ServiceResult<Product>.NotFound()
             : ServiceResult<Product>.Success(product));
+    }
+
+    public Task<ServiceResult<List<ProductHistoryEntryDto>>> GetHistoryAsync(Guid id)
+    {
+        if (Store.All(p => p.Id != id))
+            return Task.FromResult(ServiceResult<List<ProductHistoryEntryDto>>.NotFound());
+
+        var inventories = MockInventoryService.Store.Where(i => i.ProductId == id).ToList();
+
+        var entries = new List<ProductHistoryEntryDto>();
+
+        foreach (var inv in inventories)
+        {
+            entries.Add(new ProductHistoryEntryDto(
+                EntryType: "PURCHASE",
+                OccurredAt: inv.CreatedAt,
+                InventoryId: inv.Id,
+                InventoryStatus: inv.Status,
+                InitialQuantity: inv.InitialQuantity,
+                Location: inv.Location,
+                QuantityDelta: null,
+                Source: null,
+                Note: inv.Note
+            ));
+
+            var events = MockInventoryEventService.Store.Where(e => e.InventoryId == inv.Id);
+            entries.AddRange(events.Select(e => new ProductHistoryEntryDto(
+                EntryType: e.EventType,
+                OccurredAt: e.CreatedAt,
+                InventoryId: inv.Id,
+                InventoryStatus: inv.Status,
+                InitialQuantity: null,
+                Location: null,
+                QuantityDelta: e.EventType == InventoryEventType.Adjust ? e.QuantityDelta : null,
+                Source: e.Source,
+                Note: e.Note
+            )));
+        }
+
+        var sorted = entries.OrderByDescending(e => e.OccurredAt).ToList();
+        return Task.FromResult(ServiceResult<List<ProductHistoryEntryDto>>.Success(sorted));
     }
 
     public Task<ServiceResult<Product>> CreateAsync(CreateProductRequest request)

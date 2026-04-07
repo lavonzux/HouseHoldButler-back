@@ -45,13 +45,23 @@ public class MockInventoryEventService : IInventoryEventService
         }
     ];
 
-    public Task<ServiceResult<List<InventoryEvent>>> GetAllAsync(Guid? inventoryId)
+    public Task<ServiceResult<List<InventoryEvent>>> GetAllAsync(Guid? inventoryId, Guid? productId = null)
     {
         var query = Store.AsEnumerable();
+
         if (inventoryId.HasValue)
             query = query.Where(e => e.InventoryId == inventoryId.Value);
 
-        var result = query.OrderBy(e => e.CreatedAt).ToList();
+        if (productId.HasValue)
+        {
+            var inventoryIds = MockInventoryService.Store
+                .Where(i => i.ProductId == productId.Value)
+                .Select(i => i.Id)
+                .ToHashSet();
+            query = query.Where(e => inventoryIds.Contains(e.InventoryId));
+        }
+
+        var result = query.OrderByDescending(e => e.CreatedAt).ToList();
         return Task.FromResult(ServiceResult<List<InventoryEvent>>.Success(result));
     }
 

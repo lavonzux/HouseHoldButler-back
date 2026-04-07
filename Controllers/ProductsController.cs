@@ -17,6 +17,10 @@ public class ProductsController(IProductService productService) : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
         => this.ToActionResult(await productService.GetByIdAsync(id));
 
+    [HttpGet("{id:guid}/history")]
+    public async Task<IActionResult> GetHistory(Guid id)
+        => this.ToActionResult(await productService.GetHistoryAsync(id));
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateProductRequest request)
         => this.ToActionResult(await productService.CreateAsync(request));
