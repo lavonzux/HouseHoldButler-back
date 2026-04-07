@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BackendApi.csproj" />
+    <ProjectReference Include="..\..\src\BackendApi\BackendApi.csproj" />
   </ItemGroup>
 
 </Project>
