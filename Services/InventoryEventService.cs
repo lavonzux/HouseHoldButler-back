@@ -23,14 +23,19 @@ public class InventoryEventService : IInventoryEventService
         _logger = logger;
     }
 
-    public async Task<ServiceResult<List<InventoryEvent>>> GetAllAsync(Guid? inventoryId)
+    public async Task<ServiceResult<List<InventoryEvent>>> GetAllAsync(Guid? inventoryId, Guid? productId = null)
     {
-        var query = _db.InventoryEvents.AsQueryable();
+        var query = _db.InventoryEvents
+            .Include(e => e.Inventory)
+            .AsQueryable();
 
         if (inventoryId.HasValue)
             query = query.Where(e => e.InventoryId == inventoryId.Value);
 
-        var events = await query.OrderBy(e => e.CreatedAt).ToListAsync();
+        if (productId.HasValue)
+            query = query.Where(e => e.Inventory.ProductId == productId.Value);
+
+        var events = await query.OrderByDescending(e => e.CreatedAt).ToListAsync();
         return ServiceResult<List<InventoryEvent>>.Success(events);
     }
 
