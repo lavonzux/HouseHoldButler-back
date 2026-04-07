@@ -114,7 +114,7 @@ public class InventoryRecalculationService
             // Append EXPIRE event if not already the last system event
             if (!IsLastSystemEvent(events, InventoryEventType.Expire))
             {
-                inventory.Events.Add(new InventoryEvent
+                _db.InventoryEvents.Add(new InventoryEvent
                 {
                     Id = Guid.NewGuid(),
                     InventoryId = inventory.Id,
@@ -211,7 +211,7 @@ public class InventoryRecalculationService
 
             if (!IsLastSystemEvent(events, InventoryEventType.Deplete))
             {
-                inventory.Events.Add(new InventoryEvent
+                _db.InventoryEvents.Add(new InventoryEvent
                 {
                     Id = Guid.NewGuid(),
                     InventoryId = inventory.Id,

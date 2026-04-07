@@ -111,7 +111,7 @@ public class ReminderEvaluationService
 
         if (hasActive) return false;
 
-        inventory.Reminders.Add(new Reminder
+        _db.Reminders.Add(new Reminder
         {
             Id = Guid.NewGuid(),
             InventoryId = inventory.Id,
