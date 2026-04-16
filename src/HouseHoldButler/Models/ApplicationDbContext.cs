@@ -98,7 +98,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
                   .OnDelete(DeleteBehavior.SetNull);
         });
 
-        // ── Seed: 內建分類 ──
+        // ── Seed data ──
         var seedTime = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         // 主分類 IDs
@@ -166,6 +166,41 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
             new Category { Id = new Guid("b0000000-0000-0000-0000-000000000061"), ParentId = petId, Name = "寵物食品",   Icon = "pet_food",    CreatedAt = seedTime },
             new Category { Id = new Guid("b0000000-0000-0000-0000-000000000062"), ParentId = petId, Name = "寵物清潔",   Icon = "pet_clean",   CreatedAt = seedTime },
             new Category { Id = new Guid("b0000000-0000-0000-0000-000000000063"), ParentId = petId, Name = "寵物保健",   Icon = "pet_health",  CreatedAt = seedTime }
+        );
+
+        // ── Seed: 內建標籤 ──
+        var tagFrequent = new Guid("d0000000-0000-0000-0000-000000000001");
+        var tagOrganic  = new Guid("d0000000-0000-0000-0000-000000000002");
+        var tagImported = new Guid("d0000000-0000-0000-0000-000000000003");
+
+        modelBuilder.Entity<Tag>().HasData(
+            new Tag { Id = tagFrequent, Name = "常購",  CreatedAt = seedTime },
+            new Tag { Id = tagOrganic,  Name = "有機",  CreatedAt = seedTime },
+            new Tag { Id = tagImported, Name = "進口",  CreatedAt = seedTime }
+        );
+
+        // ── Seed: 內建商品 ──
+        var riceId         = new Guid("c0000000-0000-0000-0000-000000000001");
+        var waterBottleId  = new Guid("c0000000-0000-0000-0000-000000000002");
+        var laundryId      = new Guid("c0000000-0000-0000-0000-000000000003");
+        var shampooId      = new Guid("c0000000-0000-0000-0000-000000000004");
+        var toiletPaperId  = new Guid("c0000000-0000-0000-0000-000000000005");
+
+        modelBuilder.Entity<Product>().HasData(
+            new Product { Id = riceId,        CategoryId = new Guid("b0000000-0000-0000-0000-000000000007"), Name = "白米",   Unit = "kg", AvgConsumptionRate = 0.05m, LowStockThreshold = 0.2m,  CreatedAt = seedTime, UpdatedAt = seedTime },
+            new Product { Id = waterBottleId, CategoryId = new Guid("b0000000-0000-0000-0000-000000000011"), Name = "礦泉水", Unit = "瓶", AvgConsumptionRate = 0.15m, LowStockThreshold = 0.3m,  CreatedAt = seedTime, UpdatedAt = seedTime },
+            new Product { Id = laundryId,     CategoryId = new Guid("b0000000-0000-0000-0000-000000000021"), Name = "洗衣精", Unit = "瓶", AvgConsumptionRate = 0.03m, LowStockThreshold = 0.2m,  CreatedAt = seedTime, UpdatedAt = seedTime },
+            new Product { Id = shampooId,     CategoryId = new Guid("b0000000-0000-0000-0000-000000000031"), Name = "洗髮精", Unit = "瓶", AvgConsumptionRate = 0.04m, LowStockThreshold = 0.2m,  CreatedAt = seedTime, UpdatedAt = seedTime },
+            new Product { Id = toiletPaperId, CategoryId = new Guid("b0000000-0000-0000-0000-000000000041"), Name = "衛生紙", Unit = "包", AvgConsumptionRate = 0.10m, LowStockThreshold = 0.25m, CreatedAt = seedTime, UpdatedAt = seedTime }
+        );
+
+        // ── Seed: 內建商品標籤 ──
+        modelBuilder.Entity<ProductTag>().HasData(
+            new ProductTag { ProductId = riceId,        TagId = tagFrequent },
+            new ProductTag { ProductId = waterBottleId, TagId = tagFrequent },
+            new ProductTag { ProductId = waterBottleId, TagId = tagImported },
+            new ProductTag { ProductId = shampooId,     TagId = tagImported },
+            new ProductTag { ProductId = toiletPaperId, TagId = tagFrequent }
         );
     }
 }
