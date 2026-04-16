@@ -163,6 +163,27 @@ builder.Services.AddCors(options =>
 // Configure the HTTP request pipeline. 專案啟動時根路徑為 localhost:7066
 // Swagger UI 的預設路徑為 /swagger/index.html
 var app = builder.Build();
+
+// Seed admin user (controlled by appsettings.Development.json)
+var adminSeedConfig = app.Configuration.GetSection("Seed:AdminUser");
+if (adminSeedConfig.GetValue<bool>("Enabled"))
+{
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+    var email = adminSeedConfig["Email"]!;
+    if (await userManager.FindByEmailAsync(email) is null)
+    {
+        var admin = new IdentityUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true
+        };
+        await userManager.CreateAsync(admin, adminSeedConfig["Password"]!);
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     // 完全使用 .NET 內建 OpenAPI（無需 Swashbuckle）啟用 Swagger UI
